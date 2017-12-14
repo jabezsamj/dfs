@@ -69,6 +69,9 @@ public class CachingFSServerRestController
 	int ENTRY_COUNT =0;
 	final static String newLine = System.getProperty("line.separator");
 	LinkedHashMap<String,String> lockedFiles =new LinkedHashMap<String,String>();
+	static LinkedHashMap<String,Integer> fileVersion =new LinkedHashMap<String,Integer>();
+	static int versionNo = 0;
+	
 	
 	public static void setRecordFile()
 	{
@@ -80,6 +83,13 @@ public class CachingFSServerRestController
 			e.printStackTrace();
 		}
 		
+		fileVersion.put(RECORD_FILE_NAME, ++versionNo);
+		System.out.println("File Version");
+		for (Map.Entry entry : fileVersion.entrySet()) 
+		{
+		    System.out.println(entry.getKey() + ", " + entry.getValue());
+		}
+		
 	}
 	
 	
@@ -87,41 +97,21 @@ public class CachingFSServerRestController
 	{
 		if(lockedFiles.containsValue(requestor))
 		{
-			return("REQUESTOR_ALREADY_HAS_A_LOCK");
+		  return("REQUESTOR_ALREADY_HAS_A_LOCK");
 			
 		}
 		else
 		{
-			lockedFiles.put(RECORD_FILE_NAME +"_ACCESS_"+ ++ENTRY_COUNT, requestor);
+		  lockedFiles.put(RECORD_FILE_NAME +"_ACCESS_"+ ++ENTRY_COUNT, requestor);
 			for (Map.Entry entry : lockedFiles.entrySet()) 
 			{
 			    System.out.println(entry.getKey() + ", " + entry.getValue());
 			}
-			return("FILE_LOCK_SUCCESSFUL_FOR : " + requestor);
+		  return("FILE_LOCK_SUCCESSFUL_FOR : " + requestor);
 		}
 	}
 	
-	
-	public String tempSave(String requestor)
-	{
-		if(lockedFiles.isEmpty())
-		{
-			return("NO_ENTRIES");
-		}
-		
-		Map.Entry<String,String> firstEntry = lockedFiles.entrySet().iterator().next();
-		
-		if(firstEntry.getValue().equals(requestor))
-		{
-			return("CACHING_POSSIBLE_FOR_REQUESTOR");
-		}
-		else
-		{
-			return("REQUESTOR_LOCK_IS_NOT_ON_TOP");
-		}
-	
-	}
-	
+
 	public String releaseFile(String requestor)
 	{
 		if(lockedFiles.isEmpty())
@@ -147,6 +137,15 @@ public class CachingFSServerRestController
 	}
 	
 	
+	@RequestMapping(value = "/LockFile/{requestor}", method = RequestMethod.GET)
+    @ResponseBody
+    public String LockFile(@PathVariable("requestor") String requestor) 
+    {
+		System.out.println("Lock Request Triggered");
+		String result = lockFile(requestor);
+		return result;
+    }
+	
 	
 	@RequestMapping(value = "/RequestFile/{requestor}", method = RequestMethod.GET)
     @ResponseBody
@@ -154,52 +153,18 @@ public class CachingFSServerRestController
     {
 		System.out.println("File Request Triggered");
 		String result = lockFile(requestor);
+		
     	try {
     		File file = new File(RECORD_FILE_NAME);
     		String transferFile = FileUtils.readFileToString(file);
-    		return transferFile;
+    		return transferFile+"::"+fileVersion.get(RECORD_FILE_NAME);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return "Error";
-		}
-    	
-    	
+		} 	
     }
 	
-	
-	
-	
-	
-	@RequestMapping(value = "/CacheFile/{requestor}", method = RequestMethod.POST, headers = "content-type=multipart/*")
-    @ResponseBody
-    public String CacheFile(@PathVariable("requestor") String requestor,  @RequestParam("file") MultipartFile transferFile) 
-    {
-		System.out.println("Cache File Request Triggered");
-		String result = tempSave(requestor);
-		if(result == "REQUESTOR_LOCK_IS_NOT_ON_TOP" || result == "NO_ENTRIES")
-		{
-			return "FILE_CANNOT_BE_SAVED";
-		}
-		else
-		{
-		    try 
-		    {
-			InputStream is = transferFile.getInputStream();
-			String isToString = IOUtils.toString(is);
-			FileUtils.writeStringToFile(new File(RECORD_FILE_NAME), isToString);
-			} 
-		    catch (IOException e) 
-		    {
-			e.printStackTrace();
-		    }
-		    return "FILE_CACHED_SUCCESSFULLY";
-		}
-		
-		
-    }
-	
-	
+
 	
 	@RequestMapping(value = "/SaveFile/{requestor}", method = RequestMethod.POST, headers = "content-type=multipart/*")
     @ResponseBody
@@ -218,12 +183,19 @@ public class CachingFSServerRestController
 			InputStream is = transferFile.getInputStream();
 			String isToString = IOUtils.toString(is);
 			FileUtils.writeStringToFile(new File(RECORD_FILE_NAME), isToString);
+			
+			fileVersion.put(RECORD_FILE_NAME, ++versionNo);
+			System.out.println("File Version");
+			  for (Map.Entry entry : fileVersion.entrySet()) {
+			    System.out.println(entry.getKey() + ", " + entry.getValue());
+			  }
+			
 			} 
 		    catch (IOException e) 
 		    {
 			e.printStackTrace();
 		    }
-		    return "FILE_SAVED_SUCCESSFULLY";
+		    return "FILE_SAVED_SUCCESSFULLY_VERSION_" + versionNo;
 		}
 		
 		

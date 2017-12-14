@@ -30,7 +30,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	       .ignoring()
 	       .antMatchers("/RequestFile/**")
 	       .antMatchers("/SaveFile/**")
-	       .antMatchers("/CacheFile/**");
+	       .antMatchers("/LockFile/**");
 	}
 
 
