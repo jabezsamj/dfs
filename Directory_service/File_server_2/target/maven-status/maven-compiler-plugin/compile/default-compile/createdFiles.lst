@@ -1,0 +1,4 @@
+com\distributed\dfs\Application.class
+com\distributed\dfs\security\WebSecurityConfiguration.class
+com\distributed\dfs\security\MyCorsFilter.class
+com\distributed\dfs\web\rest\DistributedFSRestController.class
