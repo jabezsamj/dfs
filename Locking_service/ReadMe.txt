@@ -34,11 +34,11 @@ Requirements: Java 8, RestAPI tool (Postman)
 
 (GET requests are to be used)
 Steps:
- 1 Client1 apply the lock using the api: http://localhost:8080/LockFile/Client1
+ 1 Client1 apply the lock using the api: http://localhost:8090/InitiateLock
  2 Client1 recieves the message that the file is locked for Client1
- 3 Client2 can try locaking using the api: http://localhost:8080/LockFile/Client1
+ 3 Client2 can try locaking using the api: http://localhost:9000/InitiateLock
  4 Client2 recieves the message that the file cannot be locaked and it is licked by Client1
- 5 Client1 can release the lock using api : http://localhost:8080/ReleaseFile/Client1
+ 5 Client1 can release the lock using api : http://localhost:8080/InitiateRelease
  6 Client2 can apply lock using the same api above
 
 
