@@ -1,5 +1,5 @@
 
-Distributed File System - Locking Service.
+Distributed File System - Transparent File System
 
 
 
@@ -37,13 +37,13 @@ Requirements: Java 8, RestAPI tool (Postman)
 
 (GET requests are to be used)
 Steps:
- 1 Client1 request reading of the file: http://localhost:8080/RequestFile/Client1
+ 1 Client1 can be triggered for file request using api : http://localhost:8090/RequestFile
  2 Client1 recieves the file (Contents of the file are recieved on the tool, the contents are saved on the client side as a file)
- 3 Client2 can request file using the api: http://localhost:8080/RequestFile/Client2
+ 3 Client2 can be triggered for request file using the api: http://localhost:9000/RequestFile
  4 Client2 also recives the files
- 5 Client2 can attempt to save the file by triggering : http://localhost:8080/SaveFile/Client2   (The client program writes some lines to the file before attempting File save)
+ 5 Client2 can attempt to save the file by triggering : http://localhost:9000/SaveFile   (The client program writes some lines to the file before attempting File save)
  6 Client2 gets a denial from the server
- 7 Client1 can attempt to save the file by triggering : http://localhost:8080/SaveFile/Client1
+ 7 Client1 can attempt to save the file by triggering : http://localhost:8090/SaveFile
  8 The file is saved in the server copy and Client1 gets a success message
  9 Client2 can attempt save and the save will be successful 
 
